@@ -5,6 +5,8 @@ const userName = document.querySelector('.user-name');
 const logInForm = document.querySelector('#logInForm');
 const closeModalButton = document.querySelector('.close-auth');
 const cardsContainer = document.querySelector('.cards-restaurants');
+const cardsMenu = document.querySelector('.cards-menu');
+const restaurantHeader = document.querySelector('.restaurant-header');
 
 let isLoggedIn = false;
 
@@ -32,7 +34,6 @@ function toggleModal() {
 
     if (modalAuth.classList.contains('is-open')) {
         disableScroll();
-
         document.querySelector('#login').style.border = '1px solid black';
         document.querySelector('#password').style.border = '1px solid black';
     } else {
@@ -48,70 +49,6 @@ modalAuth.addEventListener('click', function (event) {
         toggleModal();
     }
 });
-
-function createCard(data) {
-    const card = document.createElement('a');
-    card.className = 'card card-restaurant';
-    card.href = 'restaurant.html';
-    card.innerHTML = `
-        <img src="${data.img}" alt="${data.title}" class="card-image" />
-        <div class="card-text">
-            <div class="card-heading">
-                <h3 class="card-title">${data.title}</h3>
-                <span class="card-tag tag">${data.time}</span>
-            </div>
-            <div class="card-info">
-                <div class="rating">${data.rating}</div>
-                <div class="price">від ${data.price} ₴</div>
-                <div class="category">${data.category}</div>
-            </div>
-        </div>
-    `;
-
-    card.addEventListener('click', function (event) {
-        if (!isLoggedIn) {
-            event.preventDefault();
-            toggleModal();
-        }
-    });
-
-    return card;
-}
-
-function generateCards(cardsData) {
-    cardsContainer.innerHTML = '';
-    cardsData.forEach((data) => {
-        const card = createCard(data);
-        cardsContainer.append(card);
-    });
-}
-
-const sampleCardsData = [
-    {
-        img: 'img/pizza-plus/preview.jpg',
-        title: 'Піца плюс',
-        time: '50 хвилин',
-        rating: '4.5',
-        price: '200',
-        category: 'Піца',
-    },
-    {
-        img: 'img/tanuki/preview.jpg',
-        title: 'Танукі',
-        time: '60 хвилин',
-        rating: '4.5',
-        price: '1200',
-        category: 'Суші, роли',
-    },
-    {
-        img: 'img/food-band/preview.jpg',
-        title: 'FoodBand',
-        time: '40 хвилин',
-        rating: '4.6',
-        price: '150',
-        category: 'Бургери',
-    },
-];
 
 function logIn(event) {
     event.preventDefault();
@@ -138,7 +75,7 @@ function logIn(event) {
         return;
     }
 
-    localStorage.setItem('nameParametr', login);
+    localStorage.setItem('user', login);
 
     userName.textContent = login;
     userName.style.display = 'inline';
@@ -150,39 +87,20 @@ function logIn(event) {
     logInForm.reset();
 }
 
-logInForm.addEventListener('submit', logIn);
-
-function logout() {
-    localStorage.removeItem('nameParametr');
-    userName.textContent = '';
-    userName.style.display = 'none';
-
-    buttonAuth.style.display = 'block';
-    buttonLogout.style.display = 'none';
-
-    isLoggedIn = false;
-}
-
-buttonLogout.addEventListener('click', logout);
-
-document.addEventListener('DOMContentLoaded', function () {
-    const savedLogin = localStorage.getItem('nameParametr');
+document.addEventListener('DOMContentLoaded', async function () {
+    const savedLogin = localStorage.getItem('user');
 
     if (savedLogin) {
         userName.textContent = savedLogin;
         userName.style.display = 'inline';
         buttonAuth.style.display = 'none';
         buttonLogout.style.display = 'inline-block';
-
         isLoggedIn = true;
     } else {
         buttonAuth.style.display = 'block';
         buttonLogout.style.display = 'none';
-
         isLoggedIn = false;
     }
-
-    generateCards(sampleCardsData);
 
     const swiper = new Swiper('.promo-slider', {
         loop: true,
@@ -199,3 +117,168 @@ document.addEventListener('DOMContentLoaded', function () {
         },
     });
 });
+
+function createPartnerCard(restaurant) {
+    const { name, image, stars, price, kitchen, products, time_of_delivery } = restaurant;
+
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.dataset.products = products;
+
+    card.insertAdjacentHTML('beforeend', `
+        <a href="#" class="card-link">
+            <img src="${image}" alt="${name}" class="card-image" />
+            <div class="card-text">
+                <div class="card-heading">
+                    <h3 class="card-title">${name}</h3>
+                    <span class="card-tag tag">${time_of_delivery} хвилин</span>
+                </div>
+                <div class="card-info">
+                    <div class="rating">${stars}</div>
+                    <div class="price">От ${price} ₴</div>
+                    <div class="category">${kitchen}</div>
+                </div>
+            </div>
+        </a>
+    `);
+    return card;
+}
+
+async function getRestaurants() {
+    try {
+        const response = await fetch('./json/partners.json');
+        if (!response.ok) throw new Error('Не вдалося завантажити дані ресторанів');
+        const restaurants = await response.json();
+        cardsContainer.innerHTML = '';
+        restaurants.forEach(restaurant => {
+            const card = createPartnerCard(restaurant);
+            cardsContainer.append(card);
+        });
+    } catch (error) {
+        console.error('Помилка:', error);
+    }
+}
+
+function createMenuCard(item) {
+    const { name, description, price, image } = item;
+
+    const card = document.createElement('div');
+    card.className = 'card';
+
+    card.insertAdjacentHTML('beforeend', `
+        <img src="${image}" alt="${name}" class="card-image" />
+        <div class="card-text">
+            <div class="card-heading">
+                <h3 class="card-title card-title-reg">${name}</h3>
+            </div>
+            <div class="card-info">
+                <div class="ingredients">${description}</div>
+            </div>
+            <div class="card-buttons">
+                <button class="button button-primary button-add-cart">
+                    <span class="button-card-text">У кошик</span>
+                </button>
+                <strong class="card-price-bold">${price} ₴</strong>
+            </div>
+        </div>
+    `);
+    return card;
+}
+
+async function displayMenu(menuPath) {
+    try {
+        const response = await fetch(`./json/${menuPath}`);
+        if (!response.ok) throw new Error('Не вдалося завантажити меню');
+        const menu = await response.json();
+        menuList.innerHTML = '';
+        menu.forEach(item => {
+            const card = createMenuCard(item);
+            menuList.append(card);
+        });
+    } catch (error) {
+        console.error('Помилка:', error);
+    }
+}
+
+function readQueryParams() {
+    const params = new URLSearchParams(window.location.search);
+    return {
+        name: params.get('name'),
+        menu: params.get('menu'),
+        stars: params.get('stars'),
+        price: params.get('price'),
+        category: params.get('category'),
+    };
+}
+
+async function loadMenu() {
+    const restaurantTitle = document.querySelector('.restaurant-title');
+    const rating = document.querySelector('.rating');
+    const price = document.querySelector('.price');
+    const category = document.querySelector('.category');
+    const cardsMenu = document.querySelector('.cards-menu');
+
+    if (!restaurantTitle || !rating || !price || !category || !cardsMenu) {
+        console.warn('Ця функція працює лише на сторінці restaurant.html');
+        return;
+    }
+
+    const { name, menu, stars, price: menuPrice, category: menuCategory } = readQueryParams();
+
+    restaurantTitle.textContent = name;
+    rating.textContent = stars;
+    price.textContent = `${menuPrice}`;
+    category.textContent = menuCategory;
+
+    try {
+        const response = await fetch(`./json/${menu}`);
+        if (!response.ok) throw new Error('Не вдалося завантажити меню');
+        const menuItems = await response.json();
+
+        cardsMenu.innerHTML = '';
+        menuItems.forEach((item) => {
+            const menuCard = createMenuCard(item);
+            cardsMenu.append(menuCard);
+        });
+    } catch (error) {
+        console.error('Помилка при завантаженні меню:', error);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', loadMenu)
+
+cardsContainer.addEventListener('click', (event) => {
+    const card = event.target.closest('.card');
+    
+    if (card) {
+        if (!isLoggedIn) {
+            toggleModal();
+            return;
+        }
+
+        const menuPath = card.dataset.products;
+        const restaurantName = card.querySelector('.card-title').textContent;
+        const stars = card.querySelector('.rating').textContent;
+        const price = card.querySelector('.price').textContent;
+        const category = card.querySelector('.category').textContent;
+
+        window.location.href = `restaurant.html?name=${restaurantName}&menu=${menuPath}&stars=${stars}&price=${price}&category=${category}`;
+    }
+});
+
+getRestaurants();
+
+logInForm.addEventListener('submit', logIn);
+
+function logout() {
+    localStorage.removeItem('user');
+    userName.textContent = '';
+    userName.style.display = 'none';
+
+    buttonAuth.style.display = 'block';
+    buttonLogout.style.display = 'none';
+
+    isLoggedIn = false;
+}
+
+buttonLogout.addEventListener('click', logout);
