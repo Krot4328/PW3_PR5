@@ -57,7 +57,10 @@ button {
 .input-search {
     width: 300px;
     background-image: url(../img/icon/search.svg);
+}
 
+.input-error {
+    border: 2px solid red;
 }
 
 .buttons {

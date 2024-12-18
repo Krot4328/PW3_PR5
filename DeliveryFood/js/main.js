@@ -7,6 +7,9 @@ const closeModalButton = document.querySelector('.close-auth');
 const cardsContainer = document.querySelector('.cards-restaurants');
 const cardsMenu = document.querySelector('.cards-menu');
 const restaurantHeader = document.querySelector('.restaurant-header');
+const search = document.querySelector('.input-search');
+const restaurantCardsContainer = document.querySelector('.cards-restaurants');
+const sectionTitle = document.querySelector('.section-title');
 
 let isLoggedIn = false;
 
@@ -282,3 +285,73 @@ function logout() {
 }
 
 buttonLogout.addEventListener('click', logout);
+
+let restaurantsData = [];
+
+async function loadRestaurantsAndMenus() {
+    try {
+        const response = await fetch('./json/partners.json');
+        if (!response.ok) throw new Error('Не вдалося завантажити дані ресторанів');
+        const restaurants = await response.json();
+
+        restaurantsData = await Promise.all(restaurants.map(async restaurant => {
+            const menuResponse = await fetch(`./json/${restaurant.products}`);
+            if (!menuResponse.ok) throw new Error(`Не вдалося завантажити меню для ${restaurant.name}`);
+            const menu = await menuResponse.json();
+            return { ...restaurant, menu };
+        }));
+
+        renderRestaurants(restaurantsData);
+    } catch (error) {
+        console.error('Помилка:', error);
+    }
+}
+
+function renderRestaurants(data) {
+    restaurantCardsContainer.innerHTML = '';
+    data.forEach(restaurant => {
+        const card = createPartnerCard(restaurant);
+        restaurantCardsContainer.append(card);
+    });
+}
+
+function filterRestaurants(query) {
+    const filteredRestaurants = restaurantsData.filter(restaurant => {
+        const restaurantName = restaurant.name.toLowerCase();
+        const menuItems = restaurant.menu.map(item => item.name.toLowerCase());
+
+        return (
+            restaurantName.includes(query) || 
+            menuItems.some(itemName => itemName.includes(query))
+        );
+    });
+
+    renderRestaurants(filteredRestaurants);
+
+    sectionTitle.textContent = filteredRestaurants.length
+        ? 'Результат пошуку'
+        : 'Ресторани не знайдено';
+}
+
+search.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+        const query = event.target.value.trim().toLowerCase();
+
+        if (!query) {
+            sectionTitle.textContent = 'Ресторани';
+
+            search.classList.add('input-error');
+            setTimeout(() => search.classList.remove('input-error'), 1500);
+
+            search.value = '';
+            renderRestaurants(restaurantsData);
+        } else {
+            filterRestaurants(query);
+        }
+
+        search.blur();
+        search.value = '';
+    }
+});
+
+document.addEventListener('DOMContentLoaded', loadRestaurantsAndMenus);
