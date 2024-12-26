@@ -10,8 +10,14 @@ const restaurantHeader = document.querySelector('.restaurant-header');
 const search = document.querySelector('.input-search');
 const restaurantCardsContainer = document.querySelector('.cards-restaurants');
 const sectionTitle = document.querySelector('.section-title');
+const modalWindowCart = document.querySelector('.modal-cart');
+const shoppingCartButton = document.getElementById('cart-button');
+const closeCartModalBtn = document.querySelector('.modal-cart .close');
+const clearCartButton = document.querySelector('.clear-cart');
+const itemsContainer = document.querySelector('.modal-body');
+const totalPriceTag = document.querySelector('.modal-pricetag');
 
-let isLoggedIn = false;
+let cart = JSON.parse(localStorage.getItem('cart')) || [];
 
 let scrollPosition = 0;
 
@@ -32,13 +38,122 @@ function enableScroll() {
     window.scrollTo(0, scrollPosition);
 }
 
+function closeCartModal() {
+    modalWindowCart.style.display = 'none';
+    enableScroll();
+}
+
+function openCartModal() {
+    modalWindowCart.style.display = 'flex';
+    disableScroll();
+    refreshCart();
+}
+
+function refreshCart() {
+    itemsContainer.innerHTML = '';
+    let totalAmount = 0;
+
+    cart.forEach(item => {
+        const itemRow = document.createElement('div');
+        itemRow.className = 'food-row';
+        itemRow.innerHTML = `
+            <span class="food-name">${item.name}</span>
+            <strong class="food-price">${item.price} ₴</strong>
+            <div class="food-counter">
+                <button class="counter-button decrease">-</button>
+                <span class="counter">${item.quantity}</span>
+                <button class="counter-button increase">+</button>
+            </div>
+        `;
+        itemsContainer.append(itemRow);
+
+        totalAmount += item.price * item.quantity;
+    });
+
+    totalPriceTag.textContent = `${totalAmount} ₴`;
+}
+
+function addItemToCart(item) {
+    const existingItemIndex = cart.findIndex(cartItem => cartItem.name === item.name);
+    
+    if (existingItemIndex !== -1) {
+        cart[existingItemIndex].quantity += 1;
+    } else {
+        cart.push({ ...item, quantity: 1 });
+    }
+
+    localStorage.setItem('cart', JSON.stringify(cart));
+    refreshCart();
+}
+
+document.addEventListener('click', (event) => {
+    const addToCartButton = event.target.closest('.button-add-cart');
+    
+    if (addToCartButton) {
+        const card = addToCartButton.closest('.card');
+        const name = card.querySelector('.card-title-reg').textContent;
+        const price = parseInt(card.querySelector('.card-price-bold').textContent.replace(' ₴', ''));
+        const description = card.querySelector('.ingredients').textContent;
+        const image = card.querySelector('.card-image').src;
+
+        const item = { name, price, description, image };
+
+        addItemToCart(item);
+    }
+});
+
+function emptyCart() {
+    localStorage.removeItem('cart');
+    cart = [];
+    refreshCart();
+    setTimeout(closeCartModal, 500);
+}
+
+shoppingCartButton.addEventListener('click', () => {
+    openCartModal();
+});
+
+closeCartModalBtn.addEventListener('click', closeCartModal);
+
+modalWindowCart.addEventListener('click', (event) => {
+    if (event.target === modalWindowCart) {
+        closeCartModal();
+    }
+});
+
+clearCartButton.addEventListener('click', emptyCart);
+
+itemsContainer.addEventListener('click', (event) => {
+    if (event.target.classList.contains('increase')) {
+        const itemRow = event.target.closest('.food-row');
+        const itemName = itemRow.querySelector('.food-name').textContent;
+        const cartItem = cart.find(item => item.name === itemName);
+
+        cartItem.quantity += 1;
+        localStorage.setItem('cart', JSON.stringify(cart));
+        refreshCart();
+    }
+
+    if (event.target.classList.contains('decrease')) {
+        const itemRow = event.target.closest('.food-row');
+        const itemName = itemRow.querySelector('.food-name').textContent;
+        const cartItem = cart.find(item => item.name === itemName);
+
+        if (cartItem.quantity > 1) {
+            cartItem.quantity -= 1;
+            localStorage.setItem('cart', JSON.stringify(cart));
+            refreshCart();
+        }
+    }
+});
+
+let isLoggedIn = false;
+
 function toggleModal() {
     modalAuth.classList.toggle('is-open');
 
     if (modalAuth.classList.contains('is-open')) {
         disableScroll();
-        document.querySelector('#login').style.border = '1px solid black';
-        document.querySelector('#password').style.border = '1px solid black';
     } else {
         enableScroll();
     }
