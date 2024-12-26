@@ -65,12 +65,22 @@ function refreshCart() {
                 <button class="counter-button increase">+</button>
             </div>
         `;
-        itemsContainer.append(itemRow);
 
+        itemsContainer.append(itemRow);
         totalAmount += item.price * item.quantity;
     });
 
     totalPriceTag.textContent = `${totalAmount} ₴`;
+
+    cart = cart.filter(item => {
+        if (item.quantity === 0) {
+            cart = cart.filter(cartItem => cartItem !== item);
+            localStorage.setItem('cart', JSON.stringify(cart));
+            refreshCart();
+            return false;
+        }
+        return true;
+    });
 }
 
 function addItemToCart(item) {
@@ -139,7 +149,7 @@ itemsContainer.addEventListener('click', (event) => {
         const itemName = itemRow.querySelector('.food-name').textContent;
         const cartItem = cart.find(item => item.name === itemName);
 
-        if (cartItem.quantity > 1) {
+        if (cartItem.quantity > 0) {
             cartItem.quantity -= 1;
             localStorage.setItem('cart', JSON.stringify(cart));
             refreshCart();
