@@ -6,6 +6,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<title>Delivery Food — доставка їжі додому</title>
 	<link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap&subset=cyrillic" rel="stylesheet" />
+	<link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
 	<link rel="stylesheet" href="css/normalize.css" />
 	<link rel="stylesheet" href="css/style.css" />
 </head>
@@ -40,32 +41,45 @@
 
 	<main class="main">
 		<div class="container">
-			<section class="container-promo">
-				<section class="promo pizza">
-					<h1 class="promo-title">Онлайн-сервіс <br />доставки їжі додому</h1>
-					<p class="promo-text">
-						Страви з улюбленого ресторану привезе кур'єр
-					</p>
-				</section>
-				<!-- <section class="promo kebab">
-					<h1 class="promo-title">Шашлики <br> зі знижкою 35%</h1>
-					<p class="promo-text">
-						Закажіть шашлики у будь-якому ресторані до 24 серпня та отримайте знижку за промокодом VIVAT
-					</p>
-				</section>
-				<section class="promo vegetables">
-					<h1 class="promo-title">Знижка 20% на всю іжу <br> за промокодом LOVE.JS</h1>
-					<p class="promo-text">
-						Страву з ресторану привезуть разом із двома подарунковими книгами по фронтендуторана привезут вместе с двумя подарочными книгами по фронтенду
-					</p>
-				</section>
-				<section class="promo sushi">
-					<h1 class="promo-title">Сети зі знижкою до 30% <br> у ресторанах</h1>
-					<p class="promo-text">
-						Знижки на сети до 1 вересня за промокодом DADADA
-					</p>
-				</section> -->
-			</section>
+			<section class="promo-slider swiper">
+				<div class="swiper-wrapper">
+				    <div class="swiper-slide">
+					    <section class="promo pizza">
+					        <h1 class="promo-title">Онлайн-сервіс <br />доставки їжі додому</h1>
+					        <p class="promo-text">
+						        Страви з улюбленого ресторану привезе кур'єр
+					        </p>
+					    </section>
+				    </div>
+				    <div class="swiper-slide">
+					    <section class="promo kebab">
+					        <h1 class="promo-title">Шашлики <br> зі знижкою 35%</h1>
+					        <p class="promo-text">
+						        Закажіть шашлики у будь-якому ресторані до 24 серпня та отримайте знижку за промокодом VIVAT
+					    	</p>
+						</section>
+				    </div>
+				  	<div class="swiper-slide">
+						<section class="promo vegetables">
+					  		<h1 class="promo-title">Знижка 20% на всю іжу <br> за промокодом LOVE.JS</h1>
+					  		<p class="promo-text">
+								Страву з ресторану привезуть разом із двома подарунковими книгами по фронтенду
+					  		</p>
+						</section>
+				  	</div>
+				  	<div class="swiper-slide">
+						<section class="promo sushi">
+					  		<h1 class="promo-title">Сети зі знижкою до 30% <br> у ресторанах</h1>
+					  		<p class="promo-text">
+								Знижки на сети до 1 вересня за промокодом DADADA
+					  		</p>
+						</section>
+				  	</div>
+				</div>
+				<div class="swiper-button-next"></div>
+				<div class="swiper-button-prev"></div>
+				<div class="swiper-pagination"></div>
+			</section>			  
 			<section class="restaurants">
 				<div class="section-heading">
 					<h2 class="section-title">Ресторани</h2>
@@ -87,7 +101,7 @@
 			<div class="footer-block">
 				<img src="img/icon/logo.svg" alt="logo" class="logo footer-logo" />
 				<nav class="footer-nav">
-					<a href="#" class="footer-link">Ресторанам </a>
+					<a href="#" class="footer-link">Ресторанам</a>
 					<a href="#" class="footer-link">Кур'єрам</a>
 					<a href="#" class="footer-link">Прес-центр</a>
 					<a href="#" class="footer-link">Контакти</a>
@@ -153,9 +167,12 @@
 			</div>
 			<!-- /.modal-body -->
 			<div class="modal-footer">
+				<label>
+					<input type="text" id="phone" class="input input-phone" placeholder="Введіть номер телефону">
+				</label>
 				<span class="modal-pricetag">1250 ₴</span>
 				<div class="footer-buttons">
-					<button class="button button-primary">Оформити замовлення</button>
+					<button class="button button-primary button-order">Оформити замовлення</button>
 					<button class="button clear-cart">Скасувати</button>
 				</div>
 			</div>
@@ -190,7 +207,8 @@
 		</div>
 		<!-- /.modal-dialog -->
 	</div>
-  <script src="js/main.js"></script>
+	<script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+	
+	<script src="js/main.js" type="module"></script>
 </body>
-
 </html>

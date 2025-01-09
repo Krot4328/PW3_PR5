@@ -11,6 +11,7 @@ a,
 button {
     cursor: pointer;
     color: inherit;
+    text-decoration: none;
 }
 
 .hide {
@@ -56,7 +57,10 @@ button {
 .input-search {
     width: 300px;
     background-image: url(../img/icon/search.svg);
+}
 
+.input-error {
+    border: 2px solid red;
 }
 
 .buttons {
@@ -334,7 +338,7 @@ button {
 .price,
 .category {
     color: #8c8c8c;
-    font-size: 18px;
+    font-size: 16px;
     line-height: 32px;
 }
 
@@ -599,7 +603,7 @@ button {
 
     .category,
     .price {
-        font-size: 14px;
+        font-size: 12px;
     }
 }
 
@@ -838,4 +842,23 @@ button {
         margin-right: 0;
     }
 }
- 
+
+.promo-slider {
+    width: auto;
+    height: 325px;
+    margin-bottom: 15px;
+    border-radius: 15px;
+}
+
+.input-phone {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+.input-phone:focus {
+    border-color: #007bff;
+    outline: none;
+}
